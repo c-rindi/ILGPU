@@ -386,7 +386,7 @@ namespace ILGPU.Runtime
                 throw new ArgumentOutOfRangeException(nameof(targetOffset));
             var linearSourceIndex = sourceOffset.ComputeLinearIndex(Extent);
             if (linearSourceIndex + extent > Length ||
-                targetOffset.ComputeLinearIndex(target.Extent) + extent > Length)
+                targetOffset.ComputeLinearIndex(target.Extent) + extent > target.Length)
             {
                 throw new ArgumentOutOfRangeException(nameof(extent));
             }
@@ -476,7 +476,7 @@ namespace ILGPU.Runtime
             if (!sourceOffset.InBounds(Extent))
                 throw new ArgumentOutOfRangeException(nameof(sourceOffset));
             var length = target.LongLength;
-            if (targetOffset < 0 || targetOffset >= length)
+            if (targetOffset < 0 || targetOffset + extent.Size > length)
                 throw new ArgumentOutOfRangeException(nameof(targetOffset));
             if (extent.Size < 1 || !sourceOffset.Add(extent).InBoundsInclusive(Extent))
                 throw new ArgumentOutOfRangeException(nameof(extent));
@@ -688,8 +688,11 @@ namespace ILGPU.Runtime
             var length = source.LongLength;
             if (sourceOffset < 0 || sourceOffset >= length)
                 throw new ArgumentOutOfRangeException(nameof(sourceOffset));
-            if (!targetOffset.InBounds(Extent))
+            if (!targetOffset.InBounds(Extent) ||
+                targetOffset.ComputeLinearIndex(Extent) + extent > Length)
+            {
                 throw new ArgumentOutOfRangeException(nameof(targetOffset));
+            }
             if (extent < 1 || extent > source.LongLength)
                 throw new ArgumentOutOfRangeException(nameof(extent));
             if (sourceOffset + extent < 1 || extent + sourceOffset > source.LongLength)
